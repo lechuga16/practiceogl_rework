@@ -28,4 +28,4 @@
 
 # Instalacion/FIX
 - Instalación compatible con zonemod 1.9.8.
-* El Haymakers del tank puede verse bloqueado por el plugin "smac_l4d2_fixe", dejare una versión extra de este para que no genere problemas.
+* El Haymaker del tank puede verse bloqueado por el plugin "smac_l4d2_fixe", dejare una versión extra de este para que no genere problemas.
