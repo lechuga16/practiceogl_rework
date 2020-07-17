@@ -12,7 +12,7 @@
 - El tank puede realizar Haymaker*, tanto jugador como IA.
 - Esta permitido el bunnyhop.
 - Armas/items disponibles con el comando "!give".
-- Se Puede ativar la cámara de tercera persona con el comando "!3p", desactivarlo con "!3off".
+- Se Puede activar la cámara de tercera persona con el comando "!3p", desactivarlo con "!3off".
 - Armas de CSS incluidas.
 
 # Practice 4v4, 3v3, 2v2, 1v1
@@ -26,6 +26,6 @@
 # Practice 1v1 Tank
 - Regeneración constante del tank.
 
-# Instalacion/FIX
+# Instalación/FIX
 - Instalación compatible con zonemod 1.9.8.
-* El Haymaker del tank puede verse bloqueado por el plugin "smac_l4d2_fixe", dejare una versión extra de este para que no genere problemas.
+* El Haymaker del tank puede verse bloqueado por el plugin "smac_l4d2_fixes", dejare una versión extra de este para que no genere problemas.
