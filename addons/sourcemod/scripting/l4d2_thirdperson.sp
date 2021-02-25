@@ -1,4 +1,24 @@
-#define PLUGIN_VERSION 		"1.6.1"
+/*
+*	Survivor Thirdperson
+*	Copyright (C) 2021 Silvers
+*
+*	This program is free software: you can redistribute it and/or modify
+*	it under the terms of the GNU General Public License as published by
+*	the Free Software Foundation, either version 3 of the License, or
+*	(at your option) any later version.
+*
+*	This program is distributed in the hope that it will be useful,
+*	but WITHOUT ANY WARRANTY; without even the implied warranty of
+*	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*	GNU General Public License for more details.
+*
+*	You should have received a copy of the GNU General Public License
+*	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+
+
+#define PLUGIN_VERSION 		"1.8"
 
 /*======================================================================================
 	Plugin Info:
@@ -11,6 +31,12 @@
 
 ========================================================================================
 	Change Log:
+
+1.8 (23-Feb-2021)
+	- Fixed the Charger resetting a Survivors thirdperson view after punching them. Thanks to "psisan" for reporting.
+
+1.7 (24-Sep-2020)
+	- Fixed the Charger resetting a Survivors thirdperson view after charging into them. Thanks to "Pelee" for reporting.
 
 1.6 (10-May-2020)
 	- Extra checks to prevent "IsAllowedGameMode" throwing errors.
@@ -42,14 +68,24 @@
 
 #include <sourcemod>
 #include <sdktools>
+#include <sdkhooks>
 
 #define CVAR_FLAGS			FCVAR_NOTIFY
 #define CHAT_TAG			"\x04[\x05Thirdperson\x04] \x01"
 
+#define SEQUENCE_NI			667	// Nick
+#define SEQUENCE_RO			674	// Rochelle, Adawong
+#define SEQUENCE_CO			656	// Coach
+#define SEQUENCE_EL			671	// Ellis
+#define SEQUENCE_BI			759	// Bill
+#define SEQUENCE_ZO			819	// Zoey
+#define SEQUENCE_FR			762	// Francis
+#define SEQUENCE_LO			759	// Louis
+
 
 ConVar g_hCvarAllow, g_hCvarMPGameMode, g_hCvarModes, g_hCvarModesOff, g_hCvarModesTog;
 bool g_bCvarAllow, g_bMapStarted, g_bThirdView[MAXPLAYERS+1], g_bMountedGun[MAXPLAYERS+1];
-Handle g_hTimerGun;
+Handle g_hTimerReset[MAXPLAYERS+1], g_hTimerGun;
 
 
 
@@ -60,7 +96,7 @@ public Plugin myinfo =
 {
 	name = "[L4D2] Survivor Thirdperson",
 	author = "SilverShot",
-	description = "Creates a command for survivors to use thirdperson view. edit by lechuga",
+	description = "Creates a command for survivors to use thirdperson view.",
 	version = PLUGIN_VERSION,
 	url = "https://forums.alliedmods.net/showthread.php?t=185664"
 }
@@ -86,9 +122,11 @@ public void OnPluginStart()
 	g_hCvarModesTog =	CreateConVar(	"l4d2_third_modes_tog",	"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
 	CreateConVar(						"l4d2_third_version",	PLUGIN_VERSION, "Survivor Thirdperson plugin version.", FCVAR_NOTIFY|FCVAR_DONTRECORD);
 
-	RegConsoleCmd("sm_3off",	CmdTP_Off,		"Turns thirdperson view off.");
-	RegConsoleCmd("sm_3on",		CmdTP_On,		"Turns thirdperson view on.");
-	RegConsoleCmd("sm_3p",		CmdThird,		"Toggles thirdperson view.");
+	RegConsoleCmd("sm_3rdoff",		CmdTP_Off,		"Turns thirdperson view off.");
+	RegConsoleCmd("sm_3rdon",		CmdTP_On,		"Turns thirdperson view on.");
+	RegConsoleCmd("sm_3rd",			CmdThird,		"Toggles thirdperson view.");
+	RegConsoleCmd("sm_tp",			CmdThird,		"Toggles thirdperson view.");
+	RegConsoleCmd("sm_third",		CmdThird,		"Toggles thirdperson view.");
 
 	g_hCvarMPGameMode = FindConVar("mp_gamemode");
 	g_hCvarMPGameMode.AddChangeHook(ConVarChanged_Allow);
@@ -151,10 +189,19 @@ void IsAllowed()
 	{
 		g_bCvarAllow = true;
 
+		for( int i = 1; i <= MaxClients; i++ )
+		{
+			if( IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i) )
+			{
+				SDKHook(i, SDKHook_OnTakeDamage, OnTakeDamage);
+			}
+		}
+
 		HookEvent("player_spawn",			Event_PlayerSpawn);
 		HookEvent("round_start",			Event_RoundStart,	EventHookMode_PostNoCopy);
 		HookEvent("round_end",				Event_RoundEnd,		EventHookMode_PostNoCopy);
 		HookEvent("mounted_gun_start",		Event_MountedGun);
+		HookEvent("charger_impact",			Event_ChargerImpact);
 	}
 
 	else if( g_bCvarAllow == true && (bCvarAllow == false || bAllowMode == false) )
@@ -168,6 +215,7 @@ void IsAllowed()
 		UnhookEvent("round_start",			Event_RoundStart,	EventHookMode_PostNoCopy);
 		UnhookEvent("round_end",			Event_RoundEnd,		EventHookMode_PostNoCopy);
 		UnhookEvent("mounted_gun_start",	Event_MountedGun);
+		UnhookEvent("charger_impact",		Event_ChargerImpact);
 	}
 }
 
@@ -251,6 +299,8 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	g_bThirdView[client] = false;
 	g_bMountedGun[client] = false;
+
+	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
 }
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
@@ -267,6 +317,88 @@ public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
 public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	delete g_hTimerGun;
+}
+
+public void Event_ChargerImpact(Event event, const char[] name, bool dontBroadcast)
+{
+	int userid = event.GetInt("victim");
+	int client = GetClientOfUserId(userid);
+	if( client )
+	{
+		if( g_bThirdView[client] )
+		{
+			SetEntPropFloat(client, Prop_Send, "m_TimeForceExternalView", 99999.3);
+		}
+	}
+}
+
+public void OnClientDisconnect(int client)
+{
+	delete g_hTimerReset[client];
+}
+
+public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype)
+{
+	if( g_bThirdView[victim] && damagetype == DMG_CLUB && victim > 0 && victim <= MaxClients && attacker > 0 && attacker <= MaxClients && GetClientTeam(victim) == 2 && GetClientTeam(attacker) == 3 )
+	{
+		delete g_hTimerReset[victim];
+		g_hTimerReset[victim] = CreateTimer(1.0, TimerReset, GetClientUserId(victim), TIMER_REPEAT);
+		SetEntPropFloat(victim, Prop_Send, "m_TimeForceExternalView", 99999.3);
+	}
+}
+
+public Action TimerReset(Handle timer, any client)
+{
+	client = GetClientOfUserId(client);
+	if( client && g_bThirdView[client] )
+	{
+		SetEntPropFloat(client, Prop_Send, "m_TimeForceExternalView", 99999.3);
+
+		// Repeat timer if still in stumble animation
+		static char sModel[32];
+
+		GetEntPropString(client, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
+		int anim = GetEntProp(client, Prop_Send, "m_nSequence");
+
+		switch( sModel[29] )
+		{
+			case 'b': // Nick
+			{
+				if( anim == SEQUENCE_NI ) return Plugin_Continue;
+			}
+			case 'd', 'w': // Rochelle, Adawong
+			{
+				if( anim == SEQUENCE_RO ) return Plugin_Continue;
+			}
+			case 'c': // Coach
+			{
+				if( anim == SEQUENCE_CO ) return Plugin_Continue;
+			}
+			case 'h': // Ellis
+			{
+				if( anim == SEQUENCE_EL ) return Plugin_Continue;
+			}
+			case 'v': // Bill
+			{
+				if( anim == SEQUENCE_BI ) return Plugin_Continue;
+			}
+			case 'n': // Zoey
+			{
+				if( anim == SEQUENCE_ZO ) return Plugin_Continue;
+			}
+			case 'e': // Francis
+			{
+				if( anim == SEQUENCE_FR ) return Plugin_Continue;
+			}
+			case 'a': // Louis
+			{
+				if( anim == SEQUENCE_LO ) return Plugin_Continue;
+			}
+		}
+	}
+
+	g_hTimerReset[client] = null;
+	return Plugin_Stop;
 }
 
 public void Event_MountedGun(Event event, const char[] name, bool dontBroadcast)
@@ -335,7 +467,7 @@ public Action CmdTP_On(int client, int args)
 
 public Action CmdThird(int client, int args)
 {
-	// if( client && GetClientTeam(client) == 2 && IsPlayerAlive(client) )
+	// if( g_bCvarAllow && client && GetClientTeam(client) == 2 && IsPlayerAlive(client) )
 	if( g_bCvarAllow && client && IsPlayerAlive(client) )
 	{
 		// Goto third

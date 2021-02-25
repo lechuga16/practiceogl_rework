@@ -38,26 +38,26 @@
 #include <sourcemod>
 #include <sdktools>
 
-#define PLUGIN_NAME			"Zombie Character Select"
+#define PLUGIN_NAME		"Zombie Character Select"
 #define PLUGIN_AUTHOR		"XBetaAlpha"
-#define PLUGIN_DESC			"Allows infected team players to change their class in ghost mode. (Versus Only) - edit by lechuga"
-#define PLUGIN_VERSION		"0.9.7"
-#define PLUGIN_URL			"http://dev.andrewx.net/sm/zcs"
+#define PLUGIN_DESC		"Allows infected team players to change their class in ghost mode. (Versus Only)"
+#define PLUGIN_VERSION		"0.9.6"
+#define PLUGIN_URL		"http://dev.andrewx.net/sm/zcs"
 #define PLUGIN_FILENAME		"l4d2_zcs"
 
 #define L4D_MAXPLAYERS		32
 #define L4D_GAMENAME		"left4dead2"
 
-#define ZC_SMOKER			1
-#define ZC_BOOMER			2
-#define ZC_HUNTER			3
-#define ZC_SPITTER			4
-#define ZC_JOCKEY			5
-#define ZC_CHARGER			6
-#define ZC_WITCH			7
-#define ZC_TANK				8
+#define ZC_SMOKER		1
+#define ZC_BOOMER		2
+#define ZC_HUNTER		3
+#define ZC_SPITTER		4
+#define ZC_JOCKEY		5
+#define ZC_CHARGER		6
+#define ZC_WITCH		7
+#define ZC_TANK			8
 #define ZC_NOTINFECTED		9
-#define ZC_TOTAL			7
+#define ZC_TOTAL		7
 #define ZC_LIMITSIZE		ZC_TOTAL + 1
 #define ZC_INDEXSIZE		ZC_TOTAL + 3
 #define ZC_TIMEROFFSET		0.8
@@ -65,17 +65,17 @@
 #define ZC_TIMERAFTERTANK	0.01
 #define	ZC_TIMERCHECKGHOST	0.1
 
-#define PLAYER_ADMFLAG_SIZE		8
-#define PLAYER_HUD_DELAY		1
-#define PLAYER_KEY_DELAY		2.5
-#define PLAYER_LOCK_DELAY		2.5
-#define PLAYER_NOTIFY_KEY		"\x04Press the %s key as ghost to change zombie class."
-#define PLAYER_LIMITS_UP		"\x04Limits reached. Select current class or wait. (%d/%d)"
+#define PLAYER_ADMFLAG_SIZE	8
+#define PLAYER_HUD_DELAY	1
+#define PLAYER_KEY_DELAY	2.5
+#define PLAYER_LOCK_DELAY	2.5
+#define PLAYER_NOTIFY_KEY	"\x04Press the %s key as ghost to change zombie class."
+#define PLAYER_LIMITS_UP	"\x04Limits reached. Select current class or wait. (%d/%d)"
 #define PLAYER_COOLDOWN_WAIT	"\x04Waiting for %s class to become available. (%d/%d)"
 #define PLAYER_CLASSES_UP_ALLOW	"\x04No more classes available. Last class allowed."
 #define PLAYER_CLASSES_UP_DENY	"\x04No more classes available. Select current class or wait."
-#define PLAYER_NOTIFY_LOCK		"\x04Class selection will lock in %.0fs."
-#define PLAYER_SWITCH_LOCK		"\x04Class selection now locked. (%.0fs up)"
+#define PLAYER_NOTIFY_LOCK	"\x04Class selection will lock in %.0fs."
+#define PLAYER_SWITCH_LOCK	"\x04Class selection now locked. (%.0fs up)"
 
 #define CVAR_DIRECTOR_ALLOW_IB	"director_allow_infected_bots"
 #define CVAR_Z_VS_SMOKER_LIMIT	"z_versus_smoker_limit"
@@ -97,11 +97,11 @@ new Handle:g_hSetClass		= INVALID_HANDLE;
 new Handle:g_hCreateAbility	= INVALID_HANDLE;
 new Handle:g_hGameConf		= INVALID_HANDLE;
 
-new Handle:g_hEnable			= INVALID_HANDLE;
-new Handle:g_hEnableVIB			= INVALID_HANDLE;
-new Handle:g_hDebug				= INVALID_HANDLE;
+new Handle:g_hEnable		= INVALID_HANDLE;
+new Handle:g_hEnableVIB		= INVALID_HANDLE;
+new Handle:g_hDebug		= INVALID_HANDLE;
 new Handle:g_hRespectLimits 	= INVALID_HANDLE;
-new Handle:g_hShowHudPanel 		= INVALID_HANDLE;
+new Handle:g_hShowHudPanel 	= INVALID_HANDLE;
 new Handle:g_hCountFakeBots 	= INVALID_HANDLE;
 new Handle:g_hAllowFinaleSwitch	= INVALID_HANDLE;
 new Handle:g_hAllowLastClass	= INVALID_HANDLE;
@@ -109,13 +109,13 @@ new Handle:g_hAllowLastOnLimit	= INVALID_HANDLE;
 new Handle:g_hAllowClassSwitch	= INVALID_HANDLE;
 new Handle:g_hAllowCullSwitch	= INVALID_HANDLE;
 new Handle:g_hAllowSpawnSwitch	= INVALID_HANDLE;
-new Handle:g_hAccessLevel		= INVALID_HANDLE;
-new Handle:g_hSelectKey			= INVALID_HANDLE;
-new Handle:g_hNotifyKey			= INVALID_HANDLE;
+new Handle:g_hAccessLevel	= INVALID_HANDLE;
+new Handle:g_hSelectKey		= INVALID_HANDLE;
+new Handle:g_hNotifyKey		= INVALID_HANDLE;
 new Handle:g_hNotifyKeyVerbose	= INVALID_HANDLE;
-new Handle:g_hNotifyClass		= INVALID_HANDLE;
-new Handle:g_hNotifyLock		= INVALID_HANDLE;
-new Handle:g_hSelectDelay 		= INVALID_HANDLE;
+new Handle:g_hNotifyClass	= INVALID_HANDLE;
+new Handle:g_hNotifyLock	= INVALID_HANDLE;
+new Handle:g_hSelectDelay 	= INVALID_HANDLE;
 new Handle:g_hCooldownEnable	= INVALID_HANDLE;
 new Handle:g_hCooldownSmoker	= INVALID_HANDLE;
 new Handle:g_hCooldownBoomer	= INVALID_HANDLE;
@@ -123,13 +123,13 @@ new Handle:g_hCooldownHunter	= INVALID_HANDLE;
 new Handle:g_hCooldownSpitter	= INVALID_HANDLE;
 new Handle:g_hCooldownJockey	= INVALID_HANDLE;
 new Handle:g_hCooldownCharger	= INVALID_HANDLE;
-new Handle:g_hLockDelay			= INVALID_HANDLE;
-new Handle:g_hSmokerLimit		= INVALID_HANDLE;
-new Handle:g_hBoomerLimit		= INVALID_HANDLE;
-new Handle:g_hHunterLimit		= INVALID_HANDLE;
-new Handle:g_hSpitterLimit		= INVALID_HANDLE;
-new Handle:g_hJockeyLimit		= INVALID_HANDLE;
-new Handle:g_hChargerLimit		= INVALID_HANDLE;
+new Handle:g_hLockDelay		= INVALID_HANDLE;
+new Handle:g_hSmokerLimit	= INVALID_HANDLE;
+new Handle:g_hBoomerLimit	= INVALID_HANDLE;
+new Handle:g_hHunterLimit	= INVALID_HANDLE;
+new Handle:g_hSpitterLimit	= INVALID_HANDLE;
+new Handle:g_hJockeyLimit	= INVALID_HANDLE;
+new Handle:g_hChargerLimit	= INVALID_HANDLE;
 
 new Handle:g_hLockTimer[L4D_MAXPLAYERS+1]	= {INVALID_HANDLE,...};
 new Handle:g_hAllowClassTimer[ZC_INDEXSIZE]	= {INVALID_HANDLE,...};
@@ -138,32 +138,32 @@ new Handle:g_hSpawnGhostTimer[L4D_MAXPLAYERS+1] = {INVALID_HANDLE,...};
 new String:g_sAccessLevel[PLAYER_ADMFLAG_SIZE];
 
 new bool:g_bIsHoldingMelee[L4D_MAXPLAYERS+1]	= {false,...};
-new bool:g_bIsChanging[L4D_MAXPLAYERS+1]		= {false,...};
-new bool:g_bSwitchLock[L4D_MAXPLAYERS+1]		= {false,...};
+new bool:g_bIsChanging[L4D_MAXPLAYERS+1]	= {false,...};
+new bool:g_bSwitchLock[L4D_MAXPLAYERS+1]	= {false,...};
 new bool:g_bHasMaterialised[L4D_MAXPLAYERS+1]	= {false,...};
-new bool:g_bHasSpawned[L4D_MAXPLAYERS+1]		= {false,...};
+new bool:g_bHasSpawned[L4D_MAXPLAYERS+1]	= {false,...};
 new bool:g_bUserFlagsCheck[L4D_MAXPLAYERS+1]	= {false,...};
-new bool:g_bEnable								= false;
-new bool:g_bDebug								= false;
-new bool:g_bRespectLimits						= false;
-new bool:g_bShowHudPanel						= false;
-new bool:g_bCountFakeBots						= false;
-new bool:g_bAllowFinaleSwitch					= false;
-new bool:g_bAllowLastClass						= false;
-new bool:g_bAllowLastOnLimit					= false;
-new bool:g_bAllowClassSwitch					= false;
-new bool:g_bAllowCullSwitch						= false;
-new bool:g_bAllowSpawnSwitch					= false;
-new bool:g_bCooldownEnable						= false;
-new bool:g_bNotifyKey							= false;
-new bool:g_bNotifyKeyVerbose					= false;
-new bool:g_bNotifyClass							= false;
-new bool:g_bNotifyLock							= false;
-new bool:g_bSwitchDisabled						= false;
-new bool:g_bRoundStart							= false;
-new bool:g_bRoundEnd							= false;
-new bool:g_bLeftSafeRoom						= false;
-new bool:g_bHookedEvents						= false;
+new bool:g_bEnable		= false;
+new bool:g_bDebug		= false;
+new bool:g_bRespectLimits	= false;
+new bool:g_bShowHudPanel	= false;
+new bool:g_bCountFakeBots	= false;
+new bool:g_bAllowFinaleSwitch	= false;
+new bool:g_bAllowLastClass	= false;
+new bool:g_bAllowLastOnLimit	= false;
+new bool:g_bAllowClassSwitch	= false;
+new bool:g_bAllowCullSwitch	= false;
+new bool:g_bAllowSpawnSwitch	= false;
+new bool:g_bCooldownEnable	= false;
+new bool:g_bNotifyKey		= false;
+new bool:g_bNotifyKeyVerbose	= false;
+new bool:g_bNotifyClass		= false;
+new bool:g_bNotifyLock		= false;
+new bool:g_bSwitchDisabled	= false;
+new bool:g_bRoundStart		= false;
+new bool:g_bRoundEnd		= false;
+new bool:g_bLeftSafeRoom	= false;
+new bool:g_bHookedEvents	= false;
 
 new g_iSmokerLimit		= -1;
 new g_iBoomerLimit		= -1;
@@ -174,14 +174,14 @@ new g_iChargerLimit		= -1;
 new g_iSelectKey		= 0;
 new g_oAbility			= 0;
 
-new Float:g_fLockDelay          		= 0.0;
-new Float:g_fSelectDelay				= 0.0;
-new Float:g_fCooldownSmoker				= 0.0;
-new Float:g_fCooldownBoomer				= 0.0;
-new Float:g_fCooldownHunter				= 0.0;
-new Float:g_fCooldownSpitter			= 0.0;
-new Float:g_fCooldownJockey				= 0.0;
-new Float:g_fCooldownCharger			= 0.0;
+new Float:g_fLockDelay          	= 0.0;
+new Float:g_fSelectDelay		= 0.0;
+new Float:g_fCooldownSmoker		= 0.0;
+new Float:g_fCooldownBoomer		= 0.0;
+new Float:g_fCooldownHunter		= 0.0;
+new Float:g_fCooldownSpitter		= 0.0;
+new Float:g_fCooldownJockey		= 0.0;
+new Float:g_fCooldownCharger		= 0.0;
 new Float:g_fClassDelay[ZC_INDEXSIZE]	= {0.0,...};
 
 new g_iNotifyKeyVerbose[L4D_MAXPLAYERS+1] = {0,...};
@@ -218,39 +218,39 @@ public OnPluginStart()
 
 	CreateConVar("zcs_version", PLUGIN_VERSION, "Zombie Character Select version.", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
 
-	g_hEnable				= CreateConVar("zcs_enable", 				"0", 	"Enable/Disable Zombie Character Select plugin.");
-	g_hEnableVIB			= CreateConVar("zcs_enable_vib", 			"0", 	"Enable/Disable Valve Infected Bots.");
-	g_hDebug				= CreateConVar("zcs_debug", 				"0", 	"Enable Zombie Character Select debug log.");
-	g_hRespectLimits		= CreateConVar("zcs_respect_limits",		"1", 	"Respect server configured z_versus limits.");
-	g_hShowHudPanel			= CreateConVar("zcs_show_hud_panel", 		"0", 	"Display infected class limits panel.");
-	g_hCountFakeBots		= CreateConVar("zcs_count_fake_bots", 		"0", 	"Include fake infected bots in limits.");
-	g_hAllowFinaleSwitch	= CreateConVar("zcs_allow_finale_switch", 	"0", 	"Allow infected class switch at finale stages.");
-	g_hAllowLastClass		= CreateConVar("zcs_allow_last_class", 		"1", 	"Allow player to select previous infected class.");
-	g_hAllowLastOnLimit		= CreateConVar("zcs_allow_last_on_limit", 	"0", 	"Allow player to select previous infected class when limits are up.");
-	g_hAllowClassSwitch		= CreateConVar("zcs_allow_class_switch", 	"1", 	"Allow player to change their infected class.");
-	g_hAllowCullSwitch		= CreateConVar("zcs_allow_cull_switch", 	"0", 	"Allow player to select class when out of range of survivors.");
-	g_hAllowSpawnSwitch		= CreateConVar("zcs_allow_spawn_switch", 	"0", 	"Allow player to select class after returning to ghost from spawn.");
-	g_hAccessLevel			= CreateConVar("zcs_access_level", 			"-1",	"Access level required to change class. (Up to 8 flags (Admin already allowed), -1=Disable - All Users Allowed)");
-	g_hSelectKey			= CreateConVar("zcs_select_key", 			"1", 	"Key binding for infected class selection. (1=MELEE, 2=RELOAD, 3=ZOOM)", 0, true, 1.0, true, 3.0);
-	g_hSelectDelay			= CreateConVar("zcs_select_delay", 			"0.5", 	"Infected class switch delay in (s).", 0, true, 0.1, true, 10.0);
-	g_hNotifyKey			= CreateConVar("zcs_notify_key", 			"0", 	"Broadcast infected class selection key binding to players.");
-	g_hNotifyKeyVerbose		= CreateConVar("zcs_notify_key_verbose", 	"0", 	"Notify key verbosity. (0=Notify first time ghost, 1=Notify every time ghost)");
-	g_hNotifyClass			= CreateConVar("zcs_notify_class", 			"0", 	"Broadcast class & limit status messages to players.");
-	g_hNotifyLock			= CreateConVar("zcs_notify_lock", 			"0", 	"Broadcast lock timer status messages to players.");
-	g_hCooldownEnable		= CreateConVar("zcs_cooldown_enable", 		"0", 	"Enable infected class restriction timer after player death. (0=Disable timer)");
-	g_hCooldownSmoker		= CreateConVar("zcs_cooldown_smoker", 		"-1", 	"Time before smoker class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
-	g_hCooldownBoomer		= CreateConVar("zcs_cooldown_boomer", 		"-1", 	"Time before boomer class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
-	g_hCooldownHunter		= CreateConVar("zcs_cooldown_hunter", 		"-1", 	"Time before hunter class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
-	g_hCooldownSpitter		= CreateConVar("zcs_cooldown_spitter", 		"-1", 	"Time before spitter class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
-	g_hCooldownJockey		= CreateConVar("zcs_cooldown_jockey", 		"-1", 	"Time before jockey class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
-	g_hCooldownCharger		= CreateConVar("zcs_cooldown_charger", 		"-1", 	"Time before charger class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
-	g_hLockDelay			= CreateConVar("zcs_lock_delay", 			"0", 	"Time before infected class switching is locked in (s). (0=Disable lock)", 0, true, 0.0, true, 600.0);
-	g_hSmokerLimit			= CreateConVar("zcs_smoker_limit",		 	"-1", 	"How many Smokers allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
-	g_hBoomerLimit			= CreateConVar("zcs_boomer_limit", 			"-1", 	"How many Boomers allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
-	g_hHunterLimit			= CreateConVar("zcs_hunter_limit", 			"-1", 	"How many Hunters allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
-	g_hSpitterLimit			= CreateConVar("zcs_spitter_limit", 		"-1", 	"How many Spitters allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
-	g_hJockeyLimit			= CreateConVar("zcs_jockey_limit", 			"-1", 	"How many Jockeys allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
-	g_hChargerLimit			= CreateConVar("zcs_charger_limit", 		"-1", 	"How many Chargers allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
+	g_hEnable		= CreateConVar("zcs_enable", "1", "Enable/Disable Zombie Character Select plugin.");
+	g_hEnableVIB		= CreateConVar("zcs_enable_vib", "0", "Enable/Disable Valve Infected Bots.");
+	g_hDebug		= CreateConVar("zcs_debug", "0", "Enable Zombie Character Select debug log.");
+	g_hRespectLimits	= CreateConVar("zcs_respect_limits", "1", "Respect server configured z_versus limits.");
+	g_hShowHudPanel		= CreateConVar("zcs_show_hud_panel", "0", "Display infected class limits panel.");
+	g_hCountFakeBots	= CreateConVar("zcs_count_fake_bots", "0", "Include fake infected bots in limits.");
+	g_hAllowFinaleSwitch	= CreateConVar("zcs_allow_finale_switch", "1", "Allow infected class switch at finale stages.");
+	g_hAllowLastClass	= CreateConVar("zcs_allow_last_class", "1", "Allow player to select previous infected class.");
+	g_hAllowLastOnLimit	= CreateConVar("zcs_allow_last_on_limit", "0", "Allow player to select previous infected class when limits are up.");
+	g_hAllowClassSwitch	= CreateConVar("zcs_allow_class_switch", "1", "Allow player to change their infected class.");
+	g_hAllowCullSwitch	= CreateConVar("zcs_allow_cull_switch", "0", "Allow player to select class when out of range of survivors.");
+	g_hAllowSpawnSwitch	= CreateConVar("zcs_allow_spawn_switch", "0", "Allow player to select class after returning to ghost from spawn.");
+	g_hAccessLevel		= CreateConVar("zcs_access_level", "-1", "Access level required to change class. (Up to 8 flags (Admin already allowed), -1=Disable - All Users Allowed)");
+	g_hSelectKey		= CreateConVar("zcs_select_key", "0", "Key binding for infected class selection. (1=MELEE, 2=RELOAD, 3=ZOOM)", 0, true, 1.0, true, 3.0);
+	g_hSelectDelay		= CreateConVar("zcs_select_delay", "0.1", "Infected class switch delay in (s).", 0, true, 0.1, true, 10.0);
+	g_hNotifyKey		= CreateConVar("zcs_notify_key", "0", "Broadcast infected class selection key binding to players.");
+	g_hNotifyKeyVerbose	= CreateConVar("zcs_notify_key_verbose", "0", "Notify key verbosity. (0=Notify first time ghost, 1=Notify every time ghost)");
+	g_hNotifyClass		= CreateConVar("zcs_notify_class", "0", "Broadcast class & limit status messages to players.");
+	g_hNotifyLock		= CreateConVar("zcs_notify_lock", "0", "Broadcast lock timer status messages to players.");
+	g_hCooldownEnable	= CreateConVar("zcs_cooldown_enable", "0", "Enable infected class restriction timer after player death. (0=Disable timer)");
+	g_hCooldownSmoker	= CreateConVar("zcs_cooldown_smoker", "-1", "Time before smoker class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
+	g_hCooldownBoomer	= CreateConVar("zcs_cooldown_boomer", "-1", "Time before boomer class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
+	g_hCooldownHunter	= CreateConVar("zcs_cooldown_hunter", "-1", "Time before hunter class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
+	g_hCooldownSpitter	= CreateConVar("zcs_cooldown_spitter", "-1", "Time before spitter class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
+	g_hCooldownJockey	= CreateConVar("zcs_cooldown_jockey", "-1", "Time before jockey class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
+	g_hCooldownCharger	= CreateConVar("zcs_cooldown_charger", "-1", "Time before charger class is allowed after player death in (s). (-1=Use Director, 0=No delay, 1-60=Delay)", 0, true, -1.0, true, 60.0);
+	g_hLockDelay		= CreateConVar("zcs_lock_delay", "0", "Time before infected class switching is locked in (s). (0=Disable lock)", 0, true, 0.0, true, 600.0);
+	g_hSmokerLimit		= CreateConVar("zcs_smoker_limit", "-1", "How many Smokers allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
+	g_hBoomerLimit		= CreateConVar("zcs_boomer_limit", "-1", "How many Boomers allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
+	g_hHunterLimit		= CreateConVar("zcs_hunter_limit", "-1", "How many Hunters allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
+	g_hSpitterLimit		= CreateConVar("zcs_spitter_limit", "-1", "How many Spitters allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
+	g_hJockeyLimit		= CreateConVar("zcs_jockey_limit", "-1", "How many Jockeys allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
+	g_hChargerLimit		= CreateConVar("zcs_charger_limit", "-1", "How many Chargers allowed. (-1=Use Server, 0=None Allowed, 1-10=Limit)", 0, true, -1.0, true, 10.0);
 
 	HookConVarChange(g_hEnable, Sub_ConVarsChanged);
 	HookConVarChange(g_hEnableVIB, Sub_ConVarsChanged);

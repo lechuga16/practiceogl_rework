@@ -52,7 +52,7 @@ public Plugin:myinfo =
 
 public OnPluginStart()
 {
-	CreateConVar("l4d2_sm_give_version", PLUGIN_VERSION, "[L4D2] sm_give", FCVAR_NOTIFY | FCVAR_DONTRECORD);
+	CreateConVar("l4d2_sm_give_version", PLUGIN_VERSION, "[L4D2] sm_give", FCVAR_SPONLY | FCVAR_NOTIFY | FCVAR_DONTRECORD);
 	RegConsoleCmd("sm_give", Cmd_SM_Give, "sm_give [item_name] [item_name]");
 }	
 
@@ -71,7 +71,6 @@ public Action:Cmd_SM_Give(client, argCount)
 		return Plugin_Handled;
 	}
 	
-	
 	if (argCount < 1)
 	{
 		DisplayGiveMenu(client);
@@ -80,6 +79,8 @@ public Action:Cmd_SM_Give(client, argCount)
 
 	new bool:found = false;
 	new i;
+	new flags = GetCommandFlags("give");
+	SetCommandFlags("give", flags & ~FCVAR_CHEAT);
 	for (new argnum = 1; argnum <= argCount; argnum++)
 	{	
 		decl String:arg[64], String:item[64];
@@ -135,6 +136,7 @@ public Action:Cmd_SM_Give(client, argCount)
 		}	 
 		FakeClientCommand(client, "give %s", item);
 	}
+	SetCommandFlags("give", flags|FCVAR_CHEAT);
 	return Plugin_Handled;		
 }
 
