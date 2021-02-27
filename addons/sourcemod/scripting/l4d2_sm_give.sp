@@ -140,7 +140,7 @@ public Action:Cmd_SM_Give(client, argCount)
 	return Plugin_Handled;		
 }
 
-DisplayGiveMenu(client, time=MENU_TIME_FOREVER) 
+DisplayGiveMenu(client, time=20) 
 { 
 	new Handle:menu = CreateMenu(GiveMenuHandler); 
 	SetMenuTitle(menu, "Give Menu");
@@ -150,7 +150,7 @@ DisplayGiveMenu(client, time=MENU_TIME_FOREVER)
 	DisplayMenu(menu, client, time);
 }
 
-DisplayMeleeMenu(client, time=MENU_TIME_FOREVER)
+DisplayMeleeMenu(client, time=20)
 { 
 	new Handle:menu = CreateMenu(MeleeMenuHandler); 
 	SetMenuTitle(menu, "Melees: %d", g_iMeleeClassCount);
@@ -162,7 +162,7 @@ DisplayMeleeMenu(client, time=MENU_TIME_FOREVER)
 	DisplayMenu(menu, client, time);
 }
 
-DisplayItemsMenu(client, time=MENU_TIME_FOREVER) 
+DisplayItemsMenu(client, time=20) 
 { 
 	new Handle:menu = CreateMenu(ItemsMenuHandler); 
 	SetMenuTitle(menu, "Choose an item:");
