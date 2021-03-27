@@ -2,7 +2,7 @@
 
 # Copyright
 
-- Esta es una adaptación de "practiceogl 1.2" usando como base la configuración "Zonemod 1.9.14".
+- Esta es una adaptación de "practiceogl 1.2" usando como base la configuración "Zonemod 1.9.x".
 - Todos los plugins y códigos acondicionados son de sus respectivos autores.
 
 # General
