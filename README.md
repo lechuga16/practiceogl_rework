@@ -3,15 +3,30 @@
 # General
 - 20.000 puntos de vida para los supervivientes.
 - Regeneración de infectados instantánea.
-- Mapa y daño de infectado basado en zonemod 1.9.14.
+- Mapa y daño de infectado basado en zonemod 1.9.x
 - Los Infectados especiales pueden rotar usando clic derecho del mouse en modo fantasma.
-- Solo estará el modo 1v1.
+- Visualizacion de los impactos y hitbox.
 
 # Comandos
 - !tank, !witch: Genera a su respectivo jefe.
 - !ammo: Recarga la munición
 - !give: Menu para obtener armas y objetos.
 - !tp, !third, sm_3rd: Activa/desactiva la cámara de tercera persona (solo para supervivientes)
+
+# PracticeOgl Rework
+- Modo 1v1
+- Vida del tank 1500
+- 7 Infectados comunes en el mapa.
+
+# Practice Hunter 1 Player
+- 2 Hunters con intervalos de 6 segundos.
+- Vida del tank 1500
+- 7 Infectados comunes en el mapa.
+
+# Practice Hunter 2 Player
+- 3 Hunters con intervalos de 4 segundos.
+- Vida del tank 3000
+- 15 Infectados comunes en el mapa.
 
 # Copyright
 
