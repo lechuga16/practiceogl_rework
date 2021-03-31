@@ -367,7 +367,7 @@ PrintToCmdUser(client, const String:msg[]) {
 public Action:L4D_OnFirstSurvivorLeftSafeArea(client) {
 	SetSpawnDirection(SPECIALS_ANYWHERE);
 	SetLimits();
-	PrintSettings();
+	//PrintSettings();
 	
 	//Initialise
 	g_bIsRoundActive = true;
@@ -410,23 +410,6 @@ SetLimits() {
 			}
 		}
 	}	
-}
-
-// Prints the limit for total special infected and each individual class
-PrintSettings() {
-	new String:limits[256];
-	PrintToChatAll( "Max Hunters Smokers Jockeys Chargers Boomers Spitters:" );
-	Format(limits, sizeof(limits), " %d        %d            %d            %d             %d              %d             %d", 
-		GetConVarInt(hCvarMaxSpecials), 
-		GetConVarInt(hCvarHunterLimit),
-		GetConVarInt(hCvarSmokerLimit),
-		GetConVarInt(hCvarJockeyLimit),
-		GetConVarInt(hCvarChargerLimit),
-		GetConVarInt(hCvarBoomerLimit),
-		GetConVarInt(hCvarSpitterLimit) 
-	);
-	PrintToChatAll(limits);
-	PrintToChatAll("Wave Interval: %ds", RoundFloat(GetConVarFloat(hCvarWaveInterval)) );
 }
 
 // Reset flags when survivors wipe or make it to the next map
