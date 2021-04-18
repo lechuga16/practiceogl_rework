@@ -1,5 +1,7 @@
 # PracticeOgl Rework 2.1
 
+[EN] [translation](https://translate.google.com/translate?sl=es&tl=en&u=https://github.com/lechuga16/practiceogl_rework)
+
 # General
 - 20.000 puntos de vida para los supervivientes.
 - Regeneración de infectados instantánea.
