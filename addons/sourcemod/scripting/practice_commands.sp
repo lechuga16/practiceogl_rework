@@ -1,79 +1,85 @@
 #pragma semicolon 1
- 
+#pragma newdecls required;
+
 #include <sourcemod>
-#include <sdktools>
-#include <l4d2util_infected>
-#include <colors>
+#include <readyup>
 
-new bool:g_bGT_TankIsInPlay;
- 
-public Plugin:myinfo =
+#define TEAM_SPECTATORS         1
+#define TEAM_SURVIVORS          2
+#define TEAM_INFECTED           3
+
+// ========================
+//  Plugin Variables
+// ========================
+// Game Cvars
+ConVar
+InfiniteAmmo;
+
+bool 
+g_bGT_TankIsInPlay;
+
+public Plugin myinfo =
 {
-		name = "Practice Commands",
-		author = "epilimic, lechuga",
-		description = "commands for practice support",
-		version = "1.0",
-		url = "-"
+	name = "Practice Commands",
+	author = "epilimic, lechuga",
+	description = "commands for practice support",
+	version = "1.1",
+	url = "https://github.com/lechuga16/practiceogl_rework"
 }
 
-public OnPluginStart()
+public void OnPluginStart()
 {
-	RegConsoleCmd("sm_tank", Spawntank_Cmd, "", 0);
-	RegConsoleCmd("sm_witch", Spawnwitch_Cmd, "", 0);
-	RegConsoleCmd("sm_ammo", Giveammo_Cmd, "", 0);
+	// Commands
+	RegConsoleCmd("sm_tank", Spawntank_Cmd, "respawn a tank");
+	RegConsoleCmd("sm_witch", Spawnwitch_Cmd, "respawn a witch");
+	
+	InfiniteAmmo = FindConVar("sv_infinite_ammo");
 }
 
- public OnRoundIsLive()
+public void OnRoundIsLive()
 {
-	new i = 1;
-	while (i <= MaxClients)
-	{
-		if (IsClientInGame(i) && GetClientTeam(i) == 2 && IsPlayerAlive(i))
-		{
-			SetEntityHealth(i, 20000);
+	for (int client = 1; client <= MaxClients; client++){
+		if (IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS && IsPlayerAlive(client)){
+			SetEntityHealth(client, 20000);
 		}
-		i++;
 	}
-	return 0;
+	
+	InfiniteAmmo.Flags &= ~FCVAR_NOTIFY;
+	InfiniteAmmo.SetBool(true);
+	InfiniteAmmo.Flags |= FCVAR_NOTIFY;
 }
 
-public IsTankInPlay()
+public bool IsTankInPlay()
 {
-    return g_bGT_TankIsInPlay;
+	return g_bGT_TankIsInPlay;
 }
 
-public Action:Spawntank_Cmd(client, args)
+public Action Spawntank_Cmd(int client, int args)
 {
-	if (client > 0 && !IsTankInPlay())
+	if (GetClientTeam(client) == TEAM_SURVIVORS || GetClientTeam(client) == TEAM_INFECTED)
 	{
-		new flags = GetCommandFlags("z_spawn");
-		SetCommandFlags("z_spawn", flags ^ 16384);
-		FakeClientCommand(client, "z_spawn tank");
-		SetCommandFlags("z_spawn", flags);
+		if (client > 0 && !IsTankInPlay())
+		{
+			int flags = GetCommandFlags("z_spawn");
+			SetCommandFlags("z_spawn", flags ^ 16384);
+			FakeClientCommand(client, "z_spawn tank");
+			SetCommandFlags("z_spawn", flags);
+		}
 	}
-	return Action:3;
+	return Plugin_Continue;
 }
 
-public Action:Spawnwitch_Cmd(client, args)
+public Action Spawnwitch_Cmd(int client, int args)
 {
-	if (client > 0)
+	if (GetClientTeam(client) == TEAM_SURVIVORS || GetClientTeam(client) == TEAM_INFECTED)
 	{
-		new flags = GetCommandFlags("z_spawn");
-		SetCommandFlags("z_spawn", flags ^ 16384);
-		FakeClientCommand(client, "z_spawn witch");
-		SetCommandFlags("z_spawn", flags);
+		if (client > 0)
+		{
+			int flags = GetCommandFlags("z_spawn");
+			SetCommandFlags("z_spawn", flags ^ 16384);
+			FakeClientCommand(client, "z_spawn witch");
+			SetCommandFlags("z_spawn", flags);
+		}
 	}
-	return Action:3;
-}
-
-public Action:Giveammo_Cmd(client, args)
-{
-	if (0 < client)
-	{
-		new flags = GetCommandFlags("give");
-		SetCommandFlags("give", flags ^ 16384);
-		FakeClientCommand(client, "give ammo");
-		SetCommandFlags("give", flags);
-	}
-	return Action:3;
+	return Plugin_Continue;
 }
