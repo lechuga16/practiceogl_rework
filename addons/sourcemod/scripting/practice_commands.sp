@@ -2,7 +2,10 @@
 #pragma newdecls required;
 
 #include <sourcemod>
+
+#undef REQUIRE_PLUGIN
 #include <readyup>
+#define REQUIRE_PLUGIN
 
 #define TEAM_SPECTATORS         1
 #define TEAM_SURVIVORS          2
@@ -11,42 +14,39 @@
 // ========================
 //  Plugin Variables
 // ========================
-// Game Cvars
-ConVar
-InfiniteAmmo;
-
-bool 
-g_bGT_TankIsInPlay;
+bool g_bGT_TankIsInPlay;
+Handle hILife;
+int ILife;
 
 public Plugin myinfo =
 {
 	name = "Practice Commands",
-	author = "epilimic, lechuga",
+	author = "lechuga",
 	description = "commands for practice support",
-	version = "1.1",
+	version = "1.2",
 	url = "https://github.com/lechuga16/practiceogl_rework"
 }
 
 public void OnPluginStart()
 {
-	// Commands
-	RegConsoleCmd("sm_tank", Spawntank_Cmd, "respawn a tank");
-	RegConsoleCmd("sm_witch", Spawnwitch_Cmd, "respawn a witch");
+	// ConVar
+	hILife = CreateConVar("initial_life", "10000", "Maximum life at startup", 0, true, 1.0);
+	ILife = GetConVarInt(hILife);
+	HookConVarChange(hILife, CVarChanged);
 	
-	InfiniteAmmo = FindConVar("sv_infinite_ammo");
+	// Commands
+	RegConsoleCmd("sm_rtank", Spawntank_Cmd, "respawn a tank");
+	RegConsoleCmd("sm_rwitch", Spawnwitch_Cmd, "respawn a witch");
+	
 }
 
 public void OnRoundIsLive()
 {
 	for (int client = 1; client <= MaxClients; client++){
 		if (IsClientInGame(client) && GetClientTeam(client) == TEAM_SURVIVORS && IsPlayerAlive(client)){
-			SetEntityHealth(client, 20000);
+			SetEntityHealth(client, ILife);
 		}
 	}
-	
-	InfiniteAmmo.Flags &= ~FCVAR_NOTIFY;
-	InfiniteAmmo.SetBool(true);
-	InfiniteAmmo.Flags |= FCVAR_NOTIFY;
 }
 
 public bool IsTankInPlay()
@@ -82,4 +82,9 @@ public Action Spawnwitch_Cmd(int client, int args)
 		}
 	}
 	return Plugin_Continue;
+}
+
+public int CVarChanged(Handle cvar, char[] oldValue, char[] newValue)
+{
+	ILife = GetConVarInt(hILife);
 }
