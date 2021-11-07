@@ -6,6 +6,7 @@
 - Regeneración de infectados instantánea.
 - Mapa y daño de infectado basado en zonemod 2.x
 - Visualización de los impactos y Hitbox.
+- Municion infinita.
 
 # Comandos Generales 🔧
 - sm_rtank, sm_rwitch: Genera a su respectivo jefe.
