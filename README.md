@@ -1,17 +1,20 @@
-# PracticeOgl Rework v2.2
+# PracticeOgl Rework v2.3
 
 [EN] [translation](https://translate.google.com/translate?sl=es&tl=en&u=https://github.com/lechuga16/practiceogl_rework)
 
 # General 📋
 - Regeneración de infectados instantánea.
-- Mapa y daño de infectado basado en zonemod 2.x
+- Mapa y catacteristicas basadas en ZoneMod 2.x
 - Visualización de los impactos y Hitbox.
 - Municion infinita.
+- IA altamente modificada.
+- Modo de juego por armas que se usaran.
 
 # Comandos Generales 🔧
 - sm_rtank, sm_rwitch: Genera a su respectivo jefe.
 - sm_give: Menu para obtener armas y objetos.
 - sm_tp, sm_third, sm_3rd: Activa/desactiva la cámara de tercera persona (solo para supervivientes)
+- sm_mode: Abre el menú de votación para seleccionar la forma de juego.
 
 # Comandos Practice Hunter 🔧
 - sm_limit: Establecer límites de generación de SI individuales, totales y simultáneos.
@@ -45,11 +48,14 @@
 
 # Copyright 📄
 ```
-- Esta es una adaptación de "practiceogl 1.2" usando como base la configuración "Zonemod 2.x".
+- Esta es una adaptación de "Practiceogl 1.2" y Gauntlet, usando como base la configuración "ZoneMod 2.x".
 - Todos los plugins y códigos acondicionados son de sus respectivos autores.
 - https://github.com/SirPlease/L4D2-Competitive-Rework
 - https://github.com/epilimic/e1v1
 - https://github.com/brxce/Gauntlet
 - https://forums.alliedmods.net/showthread.php?p=1142969
 - https://forums.alliedmods.net/showthread.php?p=1712767
+- https://forums.alliedmods.net/showthread.php?t=125164
+- https://forums.alliedmods.net/showthread.php?p=1414496
+- https://forums.alliedmods.net/showthread.php?p=2585694
 ```

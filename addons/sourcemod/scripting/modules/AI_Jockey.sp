@@ -1,40 +1,41 @@
 #pragma semicolon 1
-
+#pragma newdecls required //強制1.7以後的新語法
 enum Angle_Vector {
 	Pitch = 0,
 	Yaw,
 	Roll
 };
 
-new Handle:hCvarJockeyLeapRange; // vanilla cvar
-
-new Handle:hCvarHopActivationProximity; // custom cvar
+ConVar hCvarJockeyLeapRange; // vanilla cvar
+ConVar hCvarHopActivationProximity; // custom cvar
+ConVar z_jockey_leap_again_timer;
 
 // Leaps
-new bool:bCanLeap[MAXPLAYERS];
-new bool:bDoNormalJump[MAXPLAYERS]; // used to alternate pounces and normal jumps
+bool bCanLeap[MAXPLAYERS];
+bool bDoNormalJump[MAXPLAYERS]; // used to alternate pounces and normal jumps
  // shoved jockeys will stop hopping
-
-new Handle:hCvarJockeyStumbleRadius; // stumble radius of jockey ride
 
 // Bibliography: "hunter pounce push" by "Pan XiaoHai & Marcus101RR & AtomicStryker"
 
-public Jockey_OnModuleStart() {
+public void Jockey_OnModuleStart() {
 	// CONSOLE VARIABLES
 	// jockeys will move to attack survivors within this range
+	z_jockey_leap_again_timer = FindConVar("z_jockey_leap_again_timer");
 	hCvarJockeyLeapRange = FindConVar("z_jockey_leap_range");
-	SetConVarInt(hCvarJockeyLeapRange, 1000); 
+	hCvarJockeyLeapRange.SetInt(1000); 
+	hCvarJockeyLeapRange.AddChangeHook(OnJockeyCvarChange);
 	
 	// proximity when plugin will start forcing jockeys to hop
 	hCvarHopActivationProximity = CreateConVar("ai_hop_activation_proximity", "500", "How close a jockey will approach before it starts hopping");
-	
-	// Jockey stumble
-	HookEvent("jockey_ride", OnJockeyRide, EventHookMode_Pre); 
-	hCvarJockeyStumbleRadius = CreateConVar("ai_jockey_stumble_radius", "50", "Stumble radius of a jockey landing a ride");
 }
 
-public Jockey_OnModuleEnd() {
-	ResetConVar(hCvarJockeyLeapRange);
+public void Jockey_OnModuleEnd() {
+	hCvarJockeyLeapRange.RestoreDefault();
+}
+
+// Game tries to reset these cvars
+public void OnJockeyCvarChange(ConVar convar, const char[] oldValue, const char[] newValue) {
+	hCvarJockeyLeapRange.SetInt(1000);
 }
 
 /***********************************************************************************************************************************************************************************
@@ -43,17 +44,19 @@ public Jockey_OnModuleEnd() {
 
 ***********************************************************************************************************************************************************************************/
 
-public Action:Jockey_OnPlayerRunCmd(jockey, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon, bool:hasBeenShoved) {
-	new Float:jockeyPos[3];
+public Action Jockey_OnPlayerRunCmd(int jockey, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, bool hasBeenShoved) {
+	float jockeyPos[3];
 	GetClientAbsOrigin(jockey, jockeyPos);
-	new iSurvivorsProximity = GetSurvivorProximity(jockeyPos);
-	new bool:bHasLOS = bool:GetEntProp(jockey, Prop_Send, "m_hasVisibleThreats"); // line of sight to any survivor
+	int iSurvivorsProximity = GetSurvivorProximity(jockeyPos);
+	if (iSurvivorsProximity == -1) return Plugin_Continue;
+	
+	bool bHasLOS = view_as<bool>(GetEntProp(jockey, Prop_Send, "m_hasVisibleThreats")); // line of sight to any survivor
 	
 	// Start hopping if within range	
 	if ( bHasLOS && (iSurvivorsProximity < GetConVarInt(hCvarHopActivationProximity)) ) {
 		
 		// Force them to hop 
-		new flags = GetEntityFlags(jockey);
+		int flags = GetEntityFlags(jockey);
 		
 		// Alternate normal jump and pounces if jockey has not been shoved
 		if ( (flags & FL_ONGROUND) && !hasBeenShoved ) { // jump/leap off cd when on ground (unless being shoved)
@@ -64,8 +67,8 @@ public Action:Jockey_OnPlayerRunCmd(jockey, &buttons, &impulse, Float:vel[3], Fl
 				if( bCanLeap[jockey] ) {
 					buttons |= IN_ATTACK; // pounce leap
 					bCanLeap[jockey] = false; // leap should be on cooldown
-					new Float:leapCooldown = float( GetConVarInt(FindConVar("z_jockey_leap_again_timer")) );
-					CreateTimer(leapCooldown, Timer_LeapCooldown, any:jockey, TIMER_FLAG_NO_MAPCHANGE);
+					float leapCooldown = z_jockey_leap_again_timer.FloatValue;
+					CreateTimer(leapCooldown, Timer_LeapCooldown, jockey, TIMER_FLAG_NO_MAPCHANGE);
 					bDoNormalJump[jockey] = true;
 				} 			
 			}
@@ -87,66 +90,19 @@ public Action:Jockey_OnPlayerRunCmd(jockey, &buttons, &impulse, Float:vel[3], Fl
 ***********************************************************************************************************************************************************************************/
 
 // Enable hopping on spawned jockeys
-public Action:Jockey_OnSpawn(botJockey) {
+public Action Jockey_OnSpawn(int botJockey) {
 	bCanLeap[botJockey] = true;
 	return Plugin_Handled;
 }
 
 // Disable hopping when shoved
-public Jockey_OnShoved(botJockey) {
+public void Jockey_OnShoved(int botJockey) {
 	bCanLeap[botJockey] = false;
-	new leapCooldown = GetConVarInt(FindConVar("z_jockey_leap_again_timer"));
-	CreateTimer( float(leapCooldown), Timer_LeapCooldown, any:botJockey, TIMER_FLAG_NO_MAPCHANGE) ;
+	CreateTimer( z_jockey_leap_again_timer.FloatValue, Timer_LeapCooldown, botJockey, TIMER_FLAG_NO_MAPCHANGE) ;
 }
 
-public Action:Timer_LeapCooldown(Handle:timer, any:jockey) {
+public Action Timer_LeapCooldown(Handle timer, any jockey) {
 	bCanLeap[jockey] = true;
-}
 
-/***********************************************************************************************************************************************************************************
-
-																		JOCKEY STUMBLE
-
-***********************************************************************************************************************************************************************************/
-
-public OnJockeyRide(Handle:event, const String:name[], bool:dontBroadcast) {	
-	if (IsCoop()) {
-		new attacker = GetClientOfUserId(GetEventInt(event, "userid"));  
-		new victim = GetClientOfUserId(GetEventInt(event, "victim"));  
-		if(attacker > 0 && victim > 0) {
-			StumbleBystanders(victim, attacker);
-		} 
-	}	
-}
-
-bool:IsCoop() {
-	decl String:GameName[16];
-	GetConVarString(FindConVar("mp_gamemode"), GameName, sizeof(GameName));
-	return (!StrEqual(GameName, "versus", false) && !StrEqual(GameName, "scavenge", false));
-}
-
-StumbleBystanders( pinnedSurvivor, pinner ) {
-	decl Float:pinnedSurvivorPos[3];
-	decl Float:pos[3];
-	decl Float:dir[3];
-	GetClientAbsOrigin(pinnedSurvivor, pinnedSurvivorPos);
-	new radius = GetConVarInt(hCvarJockeyStumbleRadius);
-	for( new i = 1; i <= MaxClients; i++ ) {
-		if( IsClientInGame(i) && IsPlayerAlive(i) && IsSurvivor(i) ) {
-			if( i != pinnedSurvivor && i != pinner && !IsPinned(i) ) {
-				GetClientAbsOrigin(i, pos);
-				SubtractVectors(pos, pinnedSurvivorPos, dir);
-				if( GetVectorLength(dir) <= float(radius) ) {
-					NormalizeVector( dir, dir ); 
-					L4D_StaggerPlayer( i, pinnedSurvivor, dir );
-				}
-			}
-		} 
-	}
-}
-
-stock Float:modulus(Float:a, Float:b) {
-	while(a > b)
-		a -= b;
-	return a;
+	return Plugin_Continue;
 }

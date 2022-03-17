@@ -66,31 +66,31 @@ public OnPluginStart()
 		MOD = 1; else if (StrEqual(game_name, "left4dead2", false)) MOD = 2;
 	
 	//PLUGIN CVARS
-	CreateConVar("l4d2_ira_version", PLUGIN_VERSION, "Plugin's Version", FCVAR_SPONLY|FCVAR_NOTIFY|FCVAR_DONTRECORD);
-	g_hEnable = CreateConVar("l4d2_ira_enable", "1", "Turns the plugin on/off.(works with l4d1 as well)",0,true,0.0, true, 1.0);
+	CreateConVar("l4d2_ira_version", PLUGIN_VERSION, "Plugin's Version", FCVAR_NONE|FCVAR_SPONLY|FCVAR_NOTIFY|FCVAR_DONTRECORD);
+	g_hEnable = CreateConVar("l4d2_ira_enable", "1", "Turns the plugin on/off.(works with l4d1 as well)", FCVAR_NONE,true,0.0, true, 1.0);
 	HookConVarChange(g_hEnable, CvarOff);
 	
 	//GUNS
-	autoshotguns = CreateConVar("IRA_autoshotguns_enable", "1", "Infinite Reserve for AutoShotguns");
-	pumpshotguns = CreateConVar("IRA_pumpshotguns_enable", "1", "Infinite Reserve for PumpShotguns");
-	smgs 		 = CreateConVar("IRA_smgs_enable", "1", "Infinite Reserve for SMGS");
-	hrifle 		 = CreateConVar("IRA_huntingrifle_enable", "1", "Infinite Reserve for the Hunting Rifle");
-	rifle 		 = CreateConVar("IRA_rifles_enable", "1", "Infinite Reserve for Assault Rifles(m4/ak47)");
-	noobtube 	 = CreateConVar("IRA_noobtube_enable", "1", "Infinite Reserve for The Grenade Launcher -L4D2 only");
-	m60rifle  	 = CreateConVar("IRA_m60_enable","1", "Infinite Reserve for the M60? -L4D2 only");
-	sniperrifle  = CreateConVar("IRA_sniperrifle_enable", "1", "Infinite Reserve for Snipers -L4D2 only");
-	minigun 	 = CreateConVar("IRA_minigun_enable", "1", "Infinite Ammo for the Machine Gun/Minigun");
-	chainsaw 	 = CreateConVar("IRA_chainsaw_enable", "1", "Unlimited Chainsaw? -L4D2 only");
+	autoshotguns = CreateConVar("IRA_autoshotguns_enable", "1", "Infinite Reserve for AutoShotguns", FCVAR_NONE);
+	pumpshotguns = CreateConVar("IRA_pumpshotguns_enable", "1", "Infinite Reserve for PumpShotguns", FCVAR_NONE);
+	smgs 		 = CreateConVar("IRA_smgs_enable", "1", "Infinite Reserve for SMGS", FCVAR_NONE);
+	hrifle 		 = CreateConVar("IRA_huntingrifle_enable", "1", "Infinite Reserve for the Hunting Rifle", FCVAR_NONE);
+	rifle 		 = CreateConVar("IRA_rifles_enable", "1", "Infinite Reserve for Assault Rifles(m4/ak47)", FCVAR_NONE);
+	noobtube 	 = CreateConVar("IRA_noobtube_enable", "1", "Infinite Reserve for The Grenade Launcher -L4D2 only", FCVAR_NONE);
+	m60rifle  	 = CreateConVar("IRA_m60_enable","1", "Infinite Reserve for the M60? -L4D2 only", FCVAR_NONE);
+	sniperrifle  = CreateConVar("IRA_sniperrifle_enable", "1", "Infinite Reserve for Snipers -L4D2 only", FCVAR_NONE);
+	minigun 	 = CreateConVar("IRA_minigun_enable", "0", "Infinite Ammo for the Machine Gun/Minigun", FCVAR_NONE);
+	chainsaw 	 = CreateConVar("IRA_chainsaw_enable", "0", "Unlimited Chainsaw? -L4D2 only", FCVAR_NONE);
 	//THROWABLES
-	pipes 		 = CreateConVar("IRA_pipes_enable", "1", "Infinite Reserve for Pipe Bombs");
-	molly 		 = CreateConVar("IRA_molotovs_enable", "1", "Infinite Reserve for Molotovs");
-	bile 		 = CreateConVar("IRA_bilebomb_enable", "1", "Infinite Reserve for Bile Bomb -L4D2 Only");
+	pipes 		 = CreateConVar("IRA_pipes_enable", "0", "Infinite Reserve for Pipe Bombs", FCVAR_NONE);
+	molly 		 = CreateConVar("IRA_molotovs_enable", "0", "Infinite Reserve for Molotovs", FCVAR_NONE);
+	bile 		 = CreateConVar("IRA_bilebomb_enable", "0", "Infinite Reserve for Bile Bomb -L4D2 Only", FCVAR_NONE);
 	
 	HookEvent("weapon_fire",Event_WeaponFire);
 	if(MOD==2)
 		g_ActiveWeaponOffset = FindSendPropInfo("CBasePlayer", "m_hActiveWeapon");
 	
-	AutoExecConfig(false, "l4d_infinite_reserve_ammo", "sourcemod");
+	// AutoExecConfig(true, "l4d_infinite_reserve_ammo", "sourcemod");
 }
 public OnAllPluginsLoaded()
 {

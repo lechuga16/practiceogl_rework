@@ -1,5 +1,5 @@
 #pragma semicolon 1
-
+#pragma newdecls required //強制1.7以後的新語法
 #include <sourcemod>
 #include <sdktools>
 #include <left4dhooks>
@@ -12,20 +12,23 @@
 #include "modules/AI_Charger.sp"
 #include "modules/AI_Jockey.sp"
 #include "modules/AI_Tank.sp"
-#include "modules/AI_Witch.sp"
 
-new bool:bHasBeenShoved[MAXPLAYERS]; // shoving resets SI movement 
+ConVar hCvarAssaultReminderInterval;
 
-public Plugin:myinfo = 
+bool bHasBeenShoved[MAXPLAYERS]; // shoving resets SI movement 
+
+public Plugin myinfo = 
 {
 	name = "AI: Hard SI",
-	author = "Breezy",
+	author = "Breezy & HarryPotter",
 	description = "Improves the AI behaviour of special infected",
-	version = "1.0",
+	version = "1.3",
 	url = "github.com/breezyplease"
 };
 
-public OnPluginStart() { 
+public void OnPluginStart() { 
+	// Cvars
+	hCvarAssaultReminderInterval = CreateConVar( "ai_assault_reminder_interval", "2", "Frequency(sec) at which the 'nb_assault' command is fired to make SI attack" );
 	// Event hooks
 	HookEvent("player_spawn", InitialiseSpecialInfected, EventHookMode_Pre);
 	HookEvent("ability_use", OnAbilityUse, EventHookMode_Pre); 
@@ -39,10 +42,11 @@ public OnPluginStart() {
 	Charger_OnModuleStart();
 	Jockey_OnModuleStart();
 	Tank_OnModuleStart();
-	Witch_OnModuleStart();
+	//Autoconfig for plugin
+	//AutoExecConfig(true, "AI_HardSI");
 }
 
-public OnPluginEnd() {
+public void OnPluginEnd() {
 	// Unload modules
 	Smoker_OnModuleEnd();
 	Hunter_OnModuleEnd();
@@ -51,7 +55,24 @@ public OnPluginEnd() {
 	Charger_OnModuleEnd();
 	Jockey_OnModuleEnd();
 	Tank_OnModuleEnd();
-	Witch_OnModuleEnd();
+}
+
+/***********************************************************************************************************************************************************************************
+
+																	KEEP SI AGGRESSIVE
+																	
+***********************************************************************************************************************************************************************************/
+
+public Action L4D_OnFirstSurvivorLeftSafeArea(int client) {
+	CreateTimer( hCvarAssaultReminderInterval.FloatValue, Timer_ForceInfectedAssault, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE );
+
+	return Plugin_Continue;
+}
+
+public Action Timer_ForceInfectedAssault( Handle timer ) {
+	CheatCommand("nb_assault");
+
+	return Plugin_Continue;
 }
 
 /***********************************************************************************************************************************************************************************
@@ -61,10 +82,10 @@ public OnPluginEnd() {
 ***********************************************************************************************************************************************************************************/
 
 // Modify SI movement
-public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon) {
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon) {
 	if( IsBotInfected(client) && IsPlayerAlive(client) ) { // bots continue to trigger this callback for a few seconds after death
-		new botInfected = client;
-		switch( L4D2_Infected:GetInfectedClass(botInfected) ) {
+		int botInfected = client;
+		switch( GetInfectedClass(botInfected) ) {
 		
 			case (L4D2Infected_Hunter): {
 				if( !bHasBeenShoved[botInfected] ) return Hunter_OnPlayerRunCmd( botInfected, buttons, impulse, vel, angles, weapon );
@@ -97,13 +118,13 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 ***********************************************************************************************************************************************************************************/
 
 // Initialise relevant module flags for SI when they spawn
-public Action:InitialiseSpecialInfected(Handle:event, String:name[], bool:dontBroadcast) {
-	new client = GetClientOfUserId(GetEventInt(event, "userid"));
+public Action InitialiseSpecialInfected(Event event, char[] name, bool dontBroadcast) {
+	int client = GetClientOfUserId(event.GetInt("userid"));
 	if( IsBotInfected(client) ) {
-		new botInfected = client;
+		int botInfected = client;
 		bHasBeenShoved[client] = false;
 		// Process for SI class
-		switch( L4D2_Infected:GetInfectedClass(botInfected) ) {
+		switch( GetInfectedClass(botInfected) ) {
 		
 			case (L4D2Infected_Hunter): {
 				return Hunter_OnSpawn(botInfected);
@@ -126,43 +147,29 @@ public Action:InitialiseSpecialInfected(Handle:event, String:name[], bool:dontBr
 }
 
 // Modify hunter lunges and block smokers/spitters from fleeing after using their ability
-public Action:OnAbilityUse(Handle:event, String:name[], bool:dontBroadcast) {
-	new client = GetClientOfUserId(GetEventInt(event, "userid"));
+public Action OnAbilityUse(Event event, char[] name, bool dontBroadcast) {
+	int client = GetClientOfUserId(event.GetInt("userid"));
 	if( IsBotInfected(client) ) {
-		new bot = client;
+		int bot = client;
 		bHasBeenShoved[bot] = false; // Reset shove status		
 		// Process for different SI
-		new String:abilityName[32];
-		GetEventString(event, "ability", abilityName, sizeof(abilityName));
-		if( StrEqual(abilityName, "ability_lunge") ) {
+		char abilityName[32];
+		event.GetString("ability", abilityName, sizeof(abilityName));
+		if( strcmp(abilityName, "ability_lunge") == 0) {
 			return Hunter_OnPounce(bot);
-		} else if( StrEqual(abilityName, "ability_charge") ) {
+		} else if( strcmp(abilityName, "ability_charge") == 0) {
 			Charger_OnCharge(bot);
-		} else if( StrEqual(abilityName, "ability_spit") ) { // stop smokers and spitters running away
-			CreateTimer(0.5, Timer_Suicide, any:client, TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 	return Plugin_Handled;
 }
 
-public Action:OnTongueRelease(Handle:event, String:name[], bool:dontBroadcast) {
-	new client = GetClientOfUserId(GetEventInt(event, "userid"));
-	if( IsBotInfected(client) ) {
-		CreateTimer(0.5, Timer_Suicide, any:client, TIMER_FLAG_NO_MAPCHANGE);
-	}
-}
-
-public Action:Timer_Suicide(Handle:timer, any:client) {
-	ForcePlayerSuicide(client);
-	return Plugin_Handled;
-}
-
 // Pause behaviour modification when shoved
-public Action:OnPlayerShoved(Handle:event, String:name[], bool:dontBroadcast) {
-	new shovedPlayer = GetClientOfUserId(GetEventInt(event, "userid"));
+public Action OnPlayerShoved(Event event, char[] name, bool dontBroadcast) {
+	int shovedPlayer = GetClientOfUserId(event.GetInt("userid"));
 	if( IsBotInfected(shovedPlayer) ) {
 		bHasBeenShoved[shovedPlayer] = true;
-		if( L4D2_Infected:GetInfectedClass(shovedPlayer) == L4D2Infected_Jockey ) {
+		if( GetInfectedClass(shovedPlayer) == L4D2Infected_Jockey ) {
 			Jockey_OnShoved(shovedPlayer);
 		}
 	}
@@ -170,11 +177,13 @@ public Action:OnPlayerShoved(Handle:event, String:name[], bool:dontBroadcast) {
 }
 
 // Re-enable forced hopping when a shoved jockey leaps again naturally
-public Action:OnPlayerJump(Handle:event, String:name[], bool:dontBroadcast) {
-	new jumpingPlayer = GetClientOfUserId(GetEventInt(event, "userid"));
+public Action OnPlayerJump(Event event, char[] name, bool dontBroadcast) {
+	int jumpingPlayer = GetClientOfUserId(event.GetInt("userid"));
 	if( IsBotInfected(jumpingPlayer) )  {
 		bHasBeenShoved[jumpingPlayer] = false;
 	}
+
+	return Plugin_Continue;
 } 
 
 /***********************************************************************************************************************************************************************************
@@ -189,12 +198,12 @@ public Action:OnPlayerJump(Handle:event, String:name[], bool:dontBroadcast) {
 	@param attacker: the client number of the attacking SI
 	@param offsetThreshold: the radius(degrees) of the cone of detection around the straight line from the attacked survivor to the SI
 **/
-bool:IsTargetWatchingAttacker( attacker, offsetThreshold ) {
-	new bool:isWatching = true;
+bool IsTargetWatchingAttacker( int attacker, int offsetThreshold ) {
+	bool isWatching = true;
 	if( GetClientTeam(attacker) == 3 && IsPlayerAlive(attacker) ) { // SI continue to hold on to their targets for a few seconds after death
-		new target = GetClientAimTarget(attacker);
+		int target = GetClientAimTarget(attacker);
 		if( IsSurvivor(target) ) { 
-			new aimOffset = RoundToNearest(GetPlayerAimOffset(target, attacker));
+			int aimOffset = RoundToNearest(GetPlayerAimOffset(target, attacker));
 			if( aimOffset <= offsetThreshold ) {
 				isWatching = true;
 			} else {
@@ -212,15 +221,15 @@ bool:IsTargetWatchingAttacker( attacker, offsetThreshold ) {
 	@target: considers this player's position
 	Adapted from code written by Guren with help from Javalia
 **/
-Float:GetPlayerAimOffset( attacker, target ) {
+float GetPlayerAimOffset( int attacker, int target ) {
 	if( !IsClientConnected(attacker) || !IsClientInGame(attacker) || !IsPlayerAlive(attacker) )
 		ThrowError("Client is not Alive."); 
 	if(!IsClientConnected(target) || !IsClientInGame(target) || !IsPlayerAlive(target) )
 		ThrowError("Target is not Alive.");
 		
-	decl Float:attackerPos[3], Float:targetPos[3];
-	decl Float:aimVector[3], Float:directVector[3];
-	decl Float:resultAngle;
+	float attackerPos[3], targetPos[3];
+	float aimVector[3], directVector[3];
+	float resultAngle;
 	
 	// Get the unit vector representing the attacker's aim
 	GetClientEyeAngles(attacker, aimVector);
