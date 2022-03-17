@@ -12,19 +12,17 @@
 
 # Comandos Generales 🔧
 - sm_rtank, sm_rwitch: Genera a su respectivo jefe.
-- sm_give: Menu para obtener armas y objetos.
 - sm_tp, sm_third, sm_3rd: Activa/desactiva la cámara de tercera persona (solo para supervivientes)
 - sm_mode: Abre el menú de votación para seleccionar la forma de juego.
 
 # Comandos Practice Hunter 🔧
-- sm_limit: Establecer límites de generación de SI individuales, totales y simultáneos.
-- sm_timer: Establecer un tiempo de generación variable o constante (segundos).
-- sm_weight: Establecer el porcentaje de generación en grupo (1 - 100).
-- sm_spawnmode: Modo de generación, 0 = vanilla, 1 = radial, 2 = grid.
-- sm_spawnproximity: Establecer la distancia de generación mínima y máxima.
-- sm_resetspawns: Mata a todos los infectados especiales y reiniciando el temporizador
-- sm_forcetimer: Iniciar manualmente el temporizador de generación
-
+- sm_weight (ADMFLAG_ROOT): Establecer cantidad de generación para las clases SI.
+- sm_limit (ADMFLAG_ROOT): Establezca límites de generación de SI individuales, totales y simultáneos
+- sm_timer (ADMFLAG_ROOT): Establecer un tiempo de generación variable o constante (segundos).
+- sm_resetspawns (ADMFLAG_ROOT): Reinicie matando a todos los infectados especiales y reiniciando el temporizador.
+- sm_forcetimer (ADMFLAG_ROOT): Iniciar manualmente el temporizador de desove.
+- sm_type (ADMFLAG_ROOT): Patrón de rotación aleatoria.
+ 
 # PracticeOgl 1v1
 - 10.000 puntos de vida para los supervivientes.
 - Modo 1v1
