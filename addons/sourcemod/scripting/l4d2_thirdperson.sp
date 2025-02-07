@@ -345,6 +345,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		g_hTimerReset[victim] = CreateTimer(1.0, TimerReset, GetClientUserId(victim), TIMER_REPEAT);
 		SetEntPropFloat(victim, Prop_Send, "m_TimeForceExternalView", 99999.3);
 	}
+	return Plugin_Continue;
 }
 
 public Action TimerReset(Handle timer, any client)
@@ -454,6 +455,7 @@ public Action CmdTP_Off(int client, int args)
 		SetEntPropFloat(client, Prop_Send, "m_TimeForceExternalView", 0.0);
 		PrintToChat(client, "%s%t", CHAT_TAG, "Off");
 	}
+	return Plugin_Handled;
 }
 
 public Action CmdTP_On(int client, int args)
@@ -463,6 +465,7 @@ public Action CmdTP_On(int client, int args)
 		SetEntPropFloat(client, Prop_Send, "m_TimeForceExternalView", 99999.3);
 		PrintToChat(client, "%s%t", CHAT_TAG, "On");
 	}
+	return Plugin_Handled;
 }
 
 public Action CmdThird(int client, int args)

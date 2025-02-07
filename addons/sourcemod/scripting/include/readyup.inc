@@ -54,6 +54,28 @@ forward void OnRoundIsLivePre();
 forward void OnRoundIsLive();
 
 /**
+ * Called when the live countdown has been cancelled
+ * 
+ * @param client 			The client index.
+ * @param sDisruptReason 	The reason why cancel the live countdown
+ */
+forward void OnReadyCountdownCancelled(int client, char sDisruptReason);
+
+/**
+ * Called when client is ready
+ * 
+ * @param client 			The client index.
+ */
+forward void OnPlayerReady(int client);
+
+/**
+ * Called when client is unready
+ * 
+ * @param client 			The client index.
+ */
+forward void OnPlayerUnready(int client);
+
+/**
  * Returns the index of a item in the footer array.
  * Does not have to be exact. The footer only needs to contain the input, does not need to match.
  *
@@ -100,6 +122,14 @@ native int AddStringToReadyFooter(const char[] footer);
 native bool IsInReady();
 
 /**
+ * Whether or not the player is currently readied up
+ *
+ * @param client    Client to check.
+ * @return          True if the player is ready.
+ */
+native bool IsReady(int client);
+
+/**
  * @brief Toggle ready panel of one target or all clients.
  * @remarks Always return false if currently not in ready-up phase.
  *
@@ -126,6 +156,7 @@ public void __pl_readyup_SetNTVOptional()
 	MarkNativeAsOptional("EditFooterStringAtIndex");
 	MarkNativeAsOptional("AddStringToReadyFooter");
 	MarkNativeAsOptional("IsInReady");
+	MarkNativeAsOptional("IsReady");
 	MarkNativeAsOptional("ToggleReadyPanel");
 }
 #endif

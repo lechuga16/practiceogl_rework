@@ -79,12 +79,12 @@ public OnPluginStart()
 	noobtube 	 = CreateConVar("IRA_noobtube_enable", "1", "Infinite Reserve for The Grenade Launcher -L4D2 only", FCVAR_NONE);
 	m60rifle  	 = CreateConVar("IRA_m60_enable","1", "Infinite Reserve for the M60? -L4D2 only", FCVAR_NONE);
 	sniperrifle  = CreateConVar("IRA_sniperrifle_enable", "1", "Infinite Reserve for Snipers -L4D2 only", FCVAR_NONE);
-	minigun 	 = CreateConVar("IRA_minigun_enable", "0", "Infinite Ammo for the Machine Gun/Minigun", FCVAR_NONE);
-	chainsaw 	 = CreateConVar("IRA_chainsaw_enable", "0", "Unlimited Chainsaw? -L4D2 only", FCVAR_NONE);
+	minigun 	 = CreateConVar("IRA_minigun_enable", "1", "Infinite Ammo for the Machine Gun/Minigun", FCVAR_NONE);
+	chainsaw 	 = CreateConVar("IRA_chainsaw_enable", "1", "Unlimited Chainsaw? -L4D2 only", FCVAR_NONE);
 	//THROWABLES
-	pipes 		 = CreateConVar("IRA_pipes_enable", "0", "Infinite Reserve for Pipe Bombs", FCVAR_NONE);
-	molly 		 = CreateConVar("IRA_molotovs_enable", "0", "Infinite Reserve for Molotovs", FCVAR_NONE);
-	bile 		 = CreateConVar("IRA_bilebomb_enable", "0", "Infinite Reserve for Bile Bomb -L4D2 Only", FCVAR_NONE);
+	pipes 		 = CreateConVar("IRA_pipes_enable", "1", "Infinite Reserve for Pipe Bombs", FCVAR_NONE);
+	molly 		 = CreateConVar("IRA_molotovs_enable", "1", "Infinite Reserve for Molotovs", FCVAR_NONE);
+	bile 		 = CreateConVar("IRA_bilebomb_enable", "1", "Infinite Reserve for Bile Bomb -L4D2 Only", FCVAR_NONE);
 	
 	HookEvent("weapon_fire",Event_WeaponFire);
 	if(MOD==2)

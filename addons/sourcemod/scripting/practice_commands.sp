@@ -84,7 +84,7 @@ public Action Spawnwitch_Cmd(int client, int args)
 	return Plugin_Continue;
 }
 
-public int CVarChanged(Handle cvar, char[] oldValue, char[] newValue)
+public void CVarChanged(Handle cvar, char[] oldValue, char[] newValue)
 {
 	ILife = GetConVarInt(hILife);
 }
