@@ -1,0 +1,71 @@
+"Phrases"
+{
+	"Tag"
+	{
+		"es"		"[{olive}PracticeOgl{default}]"
+	}
+	"Use"
+	{
+		"es"		"Uso"
+	}
+	"ShowItems"
+	{
+		"es"		"Revisa tu consola para ver la lista de items"
+	}
+	"ItemsInfo"
+	{
+		"es"		"Esta es la lista de items disponibles:\nPuedes puedes usarlos sin el prefijo 'weapon_'"
+	}
+	"ShowInfected"
+	{
+		"es"		"Revisa tu consola para ver la lista de infectados"
+	}
+	"InfectedInfo"
+	{
+		"es"		"Esta es la lista de infectados disponibles:"
+	}
+	"AddLife"
+	{
+		"#format"	"{1:d}"
+		"es"		"{blue}+{1}{default} de vida"
+	}
+	"ClientNotInGame"
+	{
+		"es"		"Debes estar dentro del juego."
+	}
+	"ClientNotInTeam"
+	{
+		"es"		"Debes estar en el equipo de sobrevivientes."
+	}
+	"AddedItem"
+	{
+		"#format"	"{1:s}"
+		"es"		"Recibiste un(a) {olive}{1}{default}."
+	}
+	"TargetConsole"
+	{
+		"es"		"No puedes apuntar a la consola."
+	}
+	"ConsoleNotInGame"
+	{
+		"es"		"El jugador debe estar dentro del juego."
+	}
+	"ConsoleNotInTeam"
+	{
+		"es"		"El jugador debe estar en el equipo de sobrevivientes."
+	}
+	"ConsoleAddedItem"
+	{
+		"#format"	"{1:s}"
+		"es"		"Recibiste un(a) {olive}{1}{default} desde la consola."
+	}
+	"ClientNotInAnyTeam"
+	{
+		"es"		"Debes estar en el equipo de sobrevivientes."
+	}
+	"Spawned"
+	{
+		"#format"	"{1:s}"
+		"es"		"Has respawneado un(a) {olive}{1}{default}."
+	}
+}

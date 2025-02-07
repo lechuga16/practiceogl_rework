@@ -1,0 +1,71 @@
+"Phrases"
+{
+	"Tag"
+	{
+		"en"		"[{olive}PracticeOgl{default}]"
+	}
+	"Use"
+	{
+        "en"		"Usage"
+	}
+	"ShowItems"
+	{
+        "en"		"Check your console to see the list of items"
+	}
+	"ItemsInfo"
+	{
+        "en"    "This is the list of available items:\nYou can use them without the 'weapon_' prefix"
+	}
+	"ShowInfected"
+	{
+        "en"		"Check your console to see the list of infected"
+	}
+	"InfectedInfo"
+	{
+        "en"		"This is the list of available infected:"
+	}
+	"AddLife"
+	{
+		"#format"	"{1:d}"
+		"en"		"{blue}+{1}{default} health"
+	}
+	"ClientNotInGame"
+	{
+		"en"		"You must be in the game."
+	}
+	"ClientNotInTeam"
+	{
+		"en"		"You must be on the survivors' team."
+	}
+	"AddedItem"
+	{
+		"#format"	"{1:s}"
+		"en"		"You received a {olive}{1}{default}."
+	}
+	"TargetConsole"
+	{
+		"en"		"You cannot target the console."
+	}
+	"ConsoleNotInGame"
+	{
+		"en"		"The player must be in the game."
+	}
+	"ConsoleNotInTeam"
+	{
+		"en"		"The player must be on the survivors' team."
+	}
+	"ConsoleAddedItem"
+	{
+		"#format"	"{1:s}"
+		"en"		"You received a {olive}{1}{default} from the console."
+	}
+	"ClientNotInAnyTeam"
+	{
+		"en"		"You must be on the survivors' team."
+	}
+	"Spawned"
+	{
+		"#format"	"{1:s}"
+		"en"		"You have spawned a {olive}{1}{default}."
+	}
+}
